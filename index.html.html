@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Korean Name Generator 1000+</title>
+<style>
+body{font-family:Arial,sans-serif;max-width:800px;margin:30px auto;padding:20px}
+.card{border:1px solid #ddd;border-radius:12px;padding:20px}
+input,button{width:100%;padding:12px;margin:8px 0}
+canvas{border:1px solid #ccc;background:#f8f1df;max-width:100%}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>🇰🇷 Korean Name Generator (1000+ Names)</h1>
+<input id="name" placeholder="Enter your name">
+<button onclick="generateName()">Generate</button>
+
+<div id="result"></div>
+<canvas id="card" width="700" height="400"></canvas>
+</div>
+
+<script>
+const first=[
+"민","서","도","지","하","예","유","시","주","가",
+"수","연","채","윤","태","현","정","준","아","은",
+"다","라","선","진","우","혜","소","보","규","건",
+"승","호","성","재","린","나","솔","온","결","율"
+];
+
+const second=[
+"준","연","윤","우","호","민","진","서","린","아",
+"원","희","성","빈","율","찬","영","하","경","주",
+"현","지","수","태","은","별","솔","담","결","훈",
+"혁","림","인","온","후","건","재","도","라","선"
+];
+
+const meanings=[
+"지혜롭고 큰 꿈을 가진 사람",
+"밝고 따뜻한 사람",
+"용기와 배려를 갖춘 사람",
+"창의적이고 총명한 사람",
+"행복과 행운을 전하는 사람",
+"성실하고 믿음직한 사람",
+"아름다운 마음을 가진 사람"
+];
+
+function hashCode(str){
+ let h=0;
+ for(let i=0;i<str.length;i++){
+   h=((h<<5)-h)+str.charCodeAt(i);
+   h|=0;
+ }
+ return Math.abs(h);
+}
+
+function generateName(){
+ const input=document.getElementById("name").value.trim();
+ if(!input){ alert("이름을 입력하세요"); return; }
+
+ const hash=hashCode(input);
+
+ const firstPart=first[hash % first.length];
+ const secondPart=second[Math.floor(hash/7) % second.length];
+ const meaning=meanings[Math.floor(hash/13) % meanings.length];
+
+ const kname=firstPart + secondPart;
+
+ document.getElementById("result").innerHTML=`
+   <h2>${kname}</h2>
+   <p>${meaning}</p>
+   <p>조합 가능한 이름 수: ${first.length * second.length}개 (1,600개)</p>
+ `;
+
+ drawCard(kname, meaning);
+}
+
+function drawCard(name, meaning){
+ const c=document.getElementById("card");
+ const ctx=c.getContext("2d");
+
+ ctx.fillStyle="#f8f1df";
+ ctx.fillRect(0,0,c.width,c.height);
+
+ ctx.fillStyle="#222";
+ ctx.textAlign="center";
+
+ ctx.font="26px serif";
+ ctx.fillText("Your Korean Name",350,60);
+
+ ctx.font="72px serif";
+ ctx.fillText(name,350,190);
+
+ ctx.font="22px serif";
+ ctx.fillText(meaning,350,270);
+
+ ctx.font="18px serif";
+ ctx.fillText("Welcome to Korea",350,340);
+}
+</script>
+</body>
+</html>
