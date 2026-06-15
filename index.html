@@ -128,14 +128,65 @@ function convertToHangul(name){
 
  };
 
- const lower=name.toLowerCase();
+const lower = name.toLowerCase();
 
+ // 1순위 : 실제 이름 사전
  if(dict[lower]){
    return dict[lower];
  }
 
- return name;
+ // 2순위 : 자동 음차
+ let result = lower;
+
+ const rules = [
+   ["ph","프"],
+   ["ch","치"],
+   ["sh","시"],
+   ["th","스"],
+   ["ck","크"],
+   ["qu","쿠"],
+
+   ["a","아"],
+   ["b","브"],
+   ["c","크"],
+   ["d","드"],
+   ["e","에"],
+   ["f","프"],
+   ["g","그"],
+   ["h","하"],
+   ["i","이"],
+   ["j","제"],
+   ["k","크"],
+   ["l","르"],
+   ["m","므"],
+   ["n","느"],
+   ["o","오"],
+   ["p","프"],
+   ["q","쿠"],
+   ["r","르"],
+   ["s","스"],
+   ["t","트"],
+   ["u","우"],
+   ["v","브"],
+   ["w","우"],
+   ["x","크스"],
+   ["y","이"],
+   ["z","즈"]
+ ];
+
+ rules.forEach(rule=>{
+   result = result.replaceAll(rule[0], rule[1]);
+ });
+
+ result = result
+   .replace(/르르/g,"르")
+   .replace(/느느/g,"느")
+   .replace(/아아/g,"아")
+   .replace(/에에/g,"에");
+
+ return result;
 }
+
 
 function generateName(){
 
