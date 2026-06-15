@@ -1,34 +1,78 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Korean Name Generator 1000+</title>
+<title>Find Your Korean Name</title>
+
 <style>
-body{font-family:Arial,sans-serif;max-width:800px;margin:30px auto;padding:20px}
-.card{border:1px solid #ddd;border-radius:12px;padding:20px}
-input,select,button{width:100%;padding:12px;margin:8px 0}
-canvas{border:1px solid #ccc;background:#f8f1df;max-width:100%}
+body{
+  font-family:Arial,sans-serif;
+  max-width:800px;
+  margin:30px auto;
+  padding:20px;
+}
+
+.card{
+  border:1px solid #ddd;
+  border-radius:12px;
+  padding:20px;
+}
+
+input,select,button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+}
+
+button{
+  cursor:pointer;
+}
+
+canvas{
+  border:1px solid #ccc;
+  background:#f8f1df;
+  max-width:100%;
+  margin-top:15px;
+}
+
+.result{
+  margin-top:20px;
+}
 </style>
 </head>
+
 <body>
+
 <div class="card">
-<h1>🇰🇷 Korean Name Generator (1000+ Names)</h1>
-<input id="name" placeholder="Enter your name">
- <label>Gender</label>
+
+<h1>🇰🇷 Find Your Korean Name</h1>
+
+<input
+ id="name"
+ placeholder="Enter your name (ex. Michael)"
+>
+
+<label>Gender</label>
 
 <select id="gender">
   <option value="male">Male</option>
   <option value="female">Female</option>
   <option value="random">Surprise Me</option>
 </select>
-<button onclick="generateName()">Generate</button>
 
-<div id="result"></div>
+<button onclick="generateName()">
+Generate My Korean Name
+</button>
+
+<div id="result" class="result"></div>
+
 <canvas id="card" width="700" height="400"></canvas>
+
 </div>
 
 <script>
+
 const maleNames = [
  {name:"민준", meaning:"총명하고 뛰어난 사람"},
  {name:"서준", meaning:"밝고 따뜻한 리더"},
@@ -53,19 +97,22 @@ const femaleNames = [
 
 function hashCode(str){
  let h=0;
+
  for(let i=0;i<str.length;i++){
    h=((h<<5)-h)+str.charCodeAt(i);
    h|=0;
  }
+
  return Math.abs(h);
 }
 
 function convertToHangul(name){
 
- const dict = {
+ const dict={
+
    "michael":"마이클",
-   "sarah":"사라",
    "sara":"사라",
+   "sarah":"사라",
    "emma":"엠마",
    "james":"제임스",
    "john":"존",
@@ -78,6 +125,7 @@ function convertToHangul(name){
    "ethan":"이선",
    "jack":"잭",
    "leo":"레오"
+
  };
 
  const lower=name.toLowerCase();
@@ -87,19 +135,22 @@ function convertToHangul(name){
  }
 
  return name;
-} 
+}
 
 function generateName(){
-const input=document.getElementById("name").value.trim();
- const gender=document.getElementById("gender").value;
+
+ const input=document.getElementById("name").value.trim();
 
  if(!input){
-   alert("이름을 입력하세요");
+   alert("Please enter your name");
    return;
  }
 
+ const gender=document.getElementById("gender").value;
+
  const hash=hashCode(input);
- const hangulName = convertToHangul(input);
+
+ const hangulName=convertToHangul(input);
 
  let db;
 
@@ -117,40 +168,82 @@ const input=document.getElementById("name").value.trim();
 
  const result=db[hash % db.length];
 
-document.getElementById("result").innerHTML=`
-   <p><b>Original Name</b>: ${input}</p>
-   <p><b>Hangul Pronunciation</b>: ${hangulName}</p>
+ document.getElementById("result").innerHTML=`
+ <p><b>Original Name:</b> ${input}</p>
 
-   <h2>${result.name}</h2>
+ <p><b>Hangul Pronunciation:</b>
+ ${hangulName}</p>
 
-   <p>${result.meaning}</p>
+ <h2>${result.name}</h2>
+
+ <p>${result.meaning}</p>
  `;
 
- drawCard(result.name, result.meaning);
+ drawCard(
+   result.name,
+   result.meaning,
+   hangulName
+ );
 }
 
-function drawCard(name, meaning){
- const c=document.getElementById("card");
- const ctx=c.getContext("2d");
+function drawCard(
+ name,
+ meaning,
+ hangulName
+){
+
+ const canvas=document.getElementById("card");
+
+ const ctx=canvas.getContext("2d");
 
  ctx.fillStyle="#f8f1df";
- ctx.fillRect(0,0,c.width,c.height);
+ ctx.fillRect(
+   0,
+   0,
+   canvas.width,
+   canvas.height
+ );
 
  ctx.fillStyle="#222";
  ctx.textAlign="center";
 
- ctx.font="26px serif";
- ctx.fillText("Your Korean Name",350,60);
+ ctx.font="28px serif";
+ ctx.fillText(
+   "Korean Name Certificate",
+   350,
+   60
+ );
+
+ ctx.font="24px serif";
+ ctx.fillText(
+   hangulName,
+   350,
+   120
+ );
 
  ctx.font="72px serif";
- ctx.fillText(name,350,190);
+ ctx.fillText(
+   name,
+   350,
+   220
+ );
 
  ctx.font="22px serif";
- ctx.fillText(meaning,350,270);
+ ctx.fillText(
+   meaning,
+   350,
+   290
+ );
 
  ctx.font="18px serif";
- ctx.fillText("Welcome to Korea",350,340);
+ ctx.fillText(
+   "Welcome to Korea",
+   350,
+   350
+ );
 }
+
 </script>
+
 </body>
 </html>
