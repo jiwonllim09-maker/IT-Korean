@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Find Your Korean Name</title>
+<title>AI Korean Name Generator</title>
 
 <style>
 body{
@@ -27,6 +27,10 @@ input,select,button{
 
 button{
   cursor:pointer;
+  background:#111;
+  color:#fff;
+  border:none;
+  border-radius:8px;
 }
 
 canvas{
@@ -38,6 +42,7 @@ canvas{
 
 .result{
   margin-top:20px;
+  line-height:1.6;
 }
 </style>
 </head>
@@ -46,23 +51,12 @@ canvas{
 
 <div class="card">
 
-<h1>🇰🇷 Find Your Korean Name</h1>
+<h1>🇰🇷 AI Korean Name Generator</h1>
 
-<input
- id="name"
- placeholder="Enter your name (ex. Michael)"
->
-
-<label>Gender</label>
-
-<select id="gender">
-  <option value="male">Male</option>
-  <option value="female">Female</option>
-  <option value="random">Surprise Me</option>
-</select>
+<input id="name" placeholder="Enter your name (ex. Lydia)">
 
 <button onclick="generateName()">
-Generate My Korean Name
+Generate Korean Name
 </button>
 
 <div id="result" class="result"></div>
@@ -73,272 +67,113 @@ Generate My Korean Name
 
 <script>
 
-const GEMINI_API_KEY = "";
-  
-const maleNames = [convertToHangul()]
-const femaleNames = [convertToHangul()]
+const GEMINI_API_KEY = ""; // ← 여기에 키 넣으면 바로 작동
 
 async function askGemini(name){
 
- const prompt = `
+  const prompt = `
 You are a Korean naming expert.
 
-Foreign Name: ${name}
+Input name: ${name}
 
-Return JSON only.
+Task:
+1. Convert the name into Korean pronunciation
+2. Interpret the meaning or vibe of the name
+3. Recommend ONE Korean name that best matches the meaning
+
+Return ONLY valid JSON:
 
 {
-  "hangul":"",
-  "koreanName":"",
-  "meaning":""
- }
- `;
-
- const response = await fetch(
-   `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-   {
-     method:"POST",
-     headers:{
-       "Content-Type":"application/json"
-     },
-     body:JSON.stringify({
-       contents:[
-         {
-           parts:[
-             {
-               text:prompt
-             }
-           ]
-         }
-       ]
-     })
-   }
- );
-
- return await response.json();
+  "hangulPronunciation": "",
+  "meaning": "",
+  "koreanName": "",
+  "reason": ""
 }
-const maleNames = [                   
- {name:"민준", meaning:"총명하고 뛰어난 사람"},
- {name:"서준", meaning:"밝고 따뜻한 리더"},
- {name:"도윤", meaning:"올바른 마음을 가진 사람"},
- {name:"지호", meaning:"지혜롭고 큰 뜻을 품은 사람"},
- {name:"하준", meaning:"넓은 마음을 가진 사람"},
- {name:"시우", meaning:"창의적이고 용감한 사람"},
- {name:"건우", meaning:"건강하고 강인한 사람"},
- {name:"현우", meaning:"현명하고 우수한 사람"}
-];
+`;
 
-const femaleNames = [
- {name:"서연", meaning:"아름답고 지혜로운 사람"},
- {name:"지우", meaning:"슬기롭고 따뜻한 사람"},
- {name:"하린", meaning:"맑고 순수한 사람"},
- {name:"예은", meaning:"은혜롭고 우아한 사람"},
- {name:"수빈", meaning:"총명하고 밝은 사람"},
- {name:"채원", meaning:"재능이 풍부한 사람"},
- {name:"유진", meaning:"귀하고 소중한 사람"},
- {name:"다은", meaning:"많은 사랑을 받는 사람"}
-];
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        contents:[
+          {
+            parts:[
+              { text: prompt }
+            ]
+          }
+        ]
+      })
+    }
+  );
 
-function hashCode(str){
- let h=0;
+  const data = await response.json();
 
- for(let i=0;i<str.length;i++){
-   h=((h<<5)-h)+str.charCodeAt(i);
-   h|=0;
- }
-
- return Math.abs(h);
+  try {
+    const text = data.candidates[0].content.parts[0].text;
+    return JSON.parse(text);
+  } catch (e) {
+    console.log("Parse error:", data);
+    return null;
+  }
 }
-
-function convertToHangul(name){
-
- const dict={
-
-   "michael":"마이클",
-   "sara":"사라",
-   "sarah":"사라",
-   "emma":"엠마",
-   "james":"제임스",
-   "john":"존",
-   "david":"데이비드",
-   "daniel":"다니엘",
-   "alex":"알렉스",
-   "anna":"안나",
-   "olivia":"올리비아",
-   "lucas":"루카스",
-   "ethan":"이선",
-   "jack":"잭",
-   "leo":"레오"
-
- };
-
-const lower = name.toLowerCase();
-
- // 1순위 : 실제 이름 사전
- if(dict[lower]){
-   return dict[lower];
- }
-
- // 2순위 : 자동 음차
- let result = lower;
-
- const rules = [
-   ["ph","프"],
-   ["ch","치"],
-   ["sh","시"],
-   ["th","스"],
-   ["ck","크"],
-   ["qu","쿠"],
-
-   ["a","아"],
-   ["b","브"],
-   ["c","크"],
-   ["d","드"],
-   ["e","에"],
-   ["f","프"],
-   ["g","그"],
-   ["h","하"],
-   ["i","이"],
-   ["j","제"],
-   ["k","크"],
-   ["l","르"],
-   ["m","므"],
-   ["n","느"],
-   ["o","오"],
-   ["p","프"],
-   ["q","쿠"],
-   ["r","르"],
-   ["s","스"],
-   ["t","트"],
-   ["u","우"],
-   ["v","브"],
-   ["w","우"],
-   ["x","크스"],
-   ["y","이"],
-   ["z","즈"]
- ];
-
- rules.forEach(rule=>{
-   result = result.replaceAll(rule[0], rule[1]);
- });
-
- result = result
-   .replace(/르르/g,"르")
-   .replace(/느느/g,"느")
-   .replace(/아아/g,"아")
-   .replace(/에에/g,"에");
-
- return result;
-}
-
 
 async function generateName(){
 
- const input=document.getElementById("name").value.trim();
- const ai = await askGemini(input);
+  const input = document.getElementById("name").value.trim();
+  if(!input){
+    alert("Please enter a name");
+    return;
+  }
 
-console.log(ai);
+  document.getElementById("result").innerHTML = "Generating...";
 
- if(!input){
-   alert("Please enter your name");
-   return;
- }
+  const ai = await askGemini(input);
 
- const gender=document.getElementById("gender").value;
+  if(!ai){
+    document.getElementById("result").innerHTML = "Error generating name.";
+    return;
+  }
 
- const hash=hashCode(input);
+  document.getElementById("result").innerHTML = `
+    <p><b>Input:</b> ${input}</p>
+    <p><b>Korean Pronunciation:</b> ${ai.hangulPronunciation}</p>
+    <p><b>Meaning:</b> ${ai.meaning}</p>
+    <h2>Recommended Korean Name: ${ai.koreanName}</h2>
+    <p><b>Reason:</b> ${ai.reason}</p>
+  `;
 
- const hangulName=convertToHangul(input);
-
- let db;
-
- if(gender==="male"){
-   db=maleNames;
- }
- else if(gender==="female"){
-   db=femaleNames;
- }
- else{
-   db=(hash % 2 === 0)
-      ? maleNames
-      : femaleNames;
- }
-
- const result=db[hash % db.length];
-
- document.getElementById("result").innerHTML=`
- <p><b>Original Name:</b> ${input}</p>
-
- <p><b>Hangul Pronunciation:</b>
- ${hangulName}</p>
-
- <h2>${result.name}</h2>
-
- <p>${result.meaning}</p>
- `;
-
- drawCard(
-   result.name,
-   result.meaning,
-   hangulName
- );
+  drawCard(input, ai);
 }
 
-function drawCard(
- name,
- meaning,
- hangulName
-){
+function drawCard(input, ai){
 
- const canvas=document.getElementById("card");
+  const canvas = document.getElementById("card");
+  const ctx = canvas.getContext("2d");
 
- const ctx=canvas.getContext("2d");
+  ctx.fillStyle = "#f8f1df";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
- ctx.fillStyle="#f8f1df";
- ctx.fillRect(
-   0,
-   0,
-   canvas.width,
-   canvas.height
- );
+  ctx.fillStyle = "#222";
+  ctx.textAlign = "center";
 
- ctx.fillStyle="#222";
- ctx.textAlign="center";
+  ctx.font = "28px serif";
+  ctx.fillText("AI Korean Name Certificate", 350, 60);
 
- ctx.font="28px serif";
- ctx.fillText(
-   "Korean Name Certificate",
-   350,
-   60
- );
+  ctx.font = "22px serif";
+  ctx.fillText(input, 350, 120);
 
- ctx.font="24px serif";
- ctx.fillText(
-   hangulName,
-   350,
-   120
- );
+  ctx.font = "32px serif";
+  ctx.fillText(ai.koreanName, 350, 200);
 
- ctx.font="72px serif";
- ctx.fillText(
-   name,
-   350,
-   220
- );
+  ctx.font = "20px serif";
+  ctx.fillText(ai.meaning, 350, 280);
 
- ctx.font="22px serif";
- ctx.fillText(
-   meaning,
-   350,
-   290
- );
-
- ctx.font="18px serif";
- ctx.fillText(
-   "Welcome to Korea",
-   350,
-   350
- );
+  ctx.font = "18px serif";
+  ctx.fillText("Generated by AI Naming Engine", 350, 340);
 }
 
 </script>
