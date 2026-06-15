@@ -7,7 +7,7 @@
 <style>
 body{font-family:Arial,sans-serif;max-width:800px;margin:30px auto;padding:20px}
 .card{border:1px solid #ddd;border-radius:12px;padding:20px}
-input,button{width:100%;padding:12px;margin:8px 0}
+input,select,button{width:100%;padding:12px;margin:8px 0}
 canvas{border:1px solid #ccc;background:#f8f1df;max-width:100%}
 </style>
 </head>
@@ -15,6 +15,13 @@ canvas{border:1px solid #ccc;background:#f8f1df;max-width:100%}
 <div class="card">
 <h1>🇰🇷 Korean Name Generator (1000+ Names)</h1>
 <input id="name" placeholder="Enter your name">
+ <label>Gender</label>
+
+<select id="gender">
+  <option value="male">Male</option>
+  <option value="female">Female</option>
+  <option value="random">Surprise Me</option>
+</select>
 <button onclick="generateName()">Generate</button>
 
 <div id="result"></div>
@@ -54,24 +61,38 @@ function hashCode(str){
 }
 
 function generateName(){
- const input=document.getElementById("name").value.trim();
- if(!input){ alert("이름을 입력하세요"); return; }
+const input=document.getElementById("name").value.trim();
+ const gender=document.getElementById("gender").value;
+
+ if(!input){
+   alert("이름을 입력하세요");
+   return;
+ }
 
  const hash=hashCode(input);
 
- const firstPart=first[hash % first.length];
- const secondPart=second[Math.floor(hash/7) % second.length];
- const meaning=meanings[Math.floor(hash/13) % meanings.length];
+ let db;
 
- const kname=firstPart + secondPart;
+ if(gender==="male"){
+   db=maleNames;
+ }
+ else if(gender==="female"){
+   db=femaleNames;
+ }
+ else{
+   db=(hash % 2 === 0)
+      ? maleNames
+      : femaleNames;
+ }
+
+ const result=db[hash % db.length];
 
  document.getElementById("result").innerHTML=`
-   <h2>${kname}</h2>
-   <p>${meaning}</p>
-   <p>조합 가능한 이름 수: ${first.length * second.length}개 (1,600개)</p>
+   <h2>${result.name}</h2>
+   <p>${result.meaning}</p>
  `;
 
- drawCard(kname, meaning);
+ drawCard(result.name, result.meaning);
 }
 
 function drawCard(name, meaning){
