@@ -60,6 +60,35 @@ function hashCode(str){
  return Math.abs(h);
 }
 
+function convertToHangul(name){
+
+ const dict = {
+   "michael":"마이클",
+   "sarah":"사라",
+   "sara":"사라",
+   "emma":"엠마",
+   "james":"제임스",
+   "john":"존",
+   "david":"데이비드",
+   "daniel":"다니엘",
+   "alex":"알렉스",
+   "anna":"안나",
+   "olivia":"올리비아",
+   "lucas":"루카스",
+   "ethan":"이선",
+   "jack":"잭",
+   "leo":"레오"
+ };
+
+ const lower=name.toLowerCase();
+
+ if(dict[lower]){
+   return dict[lower];
+ }
+
+ return name;
+} 
+
 function generateName(){
 const input=document.getElementById("name").value.trim();
  const gender=document.getElementById("gender").value;
@@ -70,6 +99,7 @@ const input=document.getElementById("name").value.trim();
  }
 
  const hash=hashCode(input);
+ const hangulName = convertToHangul(input);
 
  let db;
 
@@ -87,8 +117,12 @@ const input=document.getElementById("name").value.trim();
 
  const result=db[hash % db.length];
 
- document.getElementById("result").innerHTML=`
+document.getElementById("result").innerHTML=`
+   <p><b>Original Name</b>: ${input}</p>
+   <p><b>Hangul Pronunciation</b>: ${hangulName}</p>
+
    <h2>${result.name}</h2>
+
    <p>${result.meaning}</p>
  `;
 
